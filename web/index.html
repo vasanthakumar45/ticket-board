@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ticket Board</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 720px; margin: 30px auto; padding: 0 16px; }
+    h1 { margin-bottom: 4px; }
+    #env { color: #666; margin-bottom: 20px; }
+    form { display: flex; gap: 8px; margin-bottom: 20px; }
+    input { flex: 1; padding: 8px; }
+    select, button { padding: 8px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border-bottom: 1px solid #ddd; padding: 8px; text-align: left; }
+    .closed { color: #888; text-decoration: line-through; }
+    #msg { color: #b00020; min-height: 1.2em; }
+  </style>
+</head>
+<body>
+  <h1>Ticket Board</h1>
+  <div id="env">Checking environment...</div>
+
+  <form id="form">
+    <input id="title" placeholder="Describe the problem" required>
+    <select id="priority">
+      <option value="low">low</option>
+      <option value="medium" selected>medium</option>
+      <option value="high">high</option>
+    </select>
+    <button type="submit">Raise ticket</button>
+  </form>
+  <div id="msg"></div>
+
+  <table>
+    <thead><tr><th>#</th><th>Title</th><th>Priority</th><th>Status</th><th></th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table>
+
+<script>
+  const msg = document.getElementById('msg');
+  const rows = document.getElementById('rows');
+
+  async function loadEnv() {
+    try {
+      const r = await fetch('/api/version');
+      const d = await r.json();
+      document.getElementById('env').textContent = 'Environment: ' + d.env + ' | API ' + d.version;
+    } catch (e) {
+      document.getElementById('env').textContent = 'API not reachable';
+    }
+  }
+
+  async function loadTickets() {
+    const r = await fetch('/api/tickets');
+    if (!r.ok) { msg.textContent = 'Could not load tickets (database not reachable?)'; return; }
+    msg.textContent = '';
+    const data = await r.json();
+    rows.replaceChildren();
+    for (const t of data) {
+      const tr = document.createElement('tr');
+      if (t.status === 'closed') tr.className = 'closed';
+      for (const value of [t.id, t.title, t.priority, t.status]) {
+        const td = document.createElement('td');
+        td.textContent = value;
+        tr.appendChild(td);
+      }
+      const action = document.createElement('td');
+      if (t.status === 'open') {
+        const b = document.createElement('button');
+        b.textContent = 'Close';
+        b.onclick = async () => { await fetch('/api/tickets/' + t.id + '/close', { method: 'POST' }); loadTickets(); };
+        action.appendChild(b);
+      }
+      tr.appendChild(action);
+      rows.appendChild(tr);
+    }
+  }
+
+  document.getElementById('form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const title = document.getElementById('title').value;
+    const priority = document.getElementById('priority').value;
+    const r = await fetch('/api/tickets', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, priority })
+    });
+    if (!r.ok) { msg.textContent = 'Could not save the ticket'; return; }
+    document.getElementById('title').value = '';
+    loadTickets();
+  });
+
+  loadEnv();
+  loadTickets();
+</script>
+</body>
+</html>

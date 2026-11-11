@@ -1,0 +1,38 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: tickets
+      POSTGRES_USER: ticketuser
+      POSTGRES_PASSWORD: ticketpass
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ticketuser -d tickets"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: ./api
+    image: vasanth45/ticket-api:v1
+    environment:
+      APP_ENV: compose
+      DB_HOST: db
+      DB_NAME: tickets
+      DB_USER: ticketuser
+      DB_PASSWORD: ticketpass
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build: ./web
+    image: vasanth45/ticket-web:v1
+    ports:
+      - "8081:80"
+    depends_on:
+      - api
+
+volumes:
+  db-data:
