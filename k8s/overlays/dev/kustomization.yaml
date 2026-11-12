@@ -1,0 +1,57 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: ticket-dev
+resources:
+  - ../../base
+configMapGenerator:
+  - name: app-config
+    literals:
+      - APP_ENV=dev
+      - DB_HOST=db
+      - DB_NAME=tickets
+images:
+  - name: vasanth45/ticket-api
+    newTag: v1
+  - name: vasanth45/ticket-web
+    newTag: v1
+replicas:
+  - name: api
+    count: 1
+  - name: web
+    count: 1
+patches:
+  - target:
+      kind: Ingress
+      name: ticket
+    patch: |-
+      - op: replace
+        path: /spec/rules/0/host
+        value: ticket-dev.localapiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: ticket-dev
+resources:
+  - ../../base
+configMapGenerator:
+  - name: app-config
+    literals:
+      - APP_ENV=dev
+      - DB_HOST=db
+      - DB_NAME=tickets
+images:
+  - name: vasanth45/ticket-api
+    newTag: v1
+  - name: vasanth45/ticket-web
+    newTag: v1
+replicas:
+  - name: api
+    count: 1
+  - name: web
+    count: 1
+patches:
+  - target:
+      kind: Ingress
+      name: ticket
+    patch: |-
+      - op: replace
+        path: /spec/rules/0/host
+        value: ticket-dev.local

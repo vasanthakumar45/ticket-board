@@ -22,17 +22,20 @@ spec:
           image: vasanth45/ticket-api:v1
           ports:
             - containerPort: 5000
+          envFrom:
+            - configMapRef:
+                name: app-config
           env:
-            - name: APP_ENV
-              value: lab
-            - name: DB_HOST
-              value: db
-            - name: DB_NAME
-              value: tickets
             - name: DB_USER
-              value: ticketuser
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: DB_USER
             - name: DB_PASSWORD
-              value: ticketpass
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: DB_PASSWORD
           readinessProbe:
             httpGet:
               path: /api/health

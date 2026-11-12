@@ -31,18 +31,34 @@ spec:
             - containerPort: 5432
           env:
             - name: POSTGRES_DB
-              value: tickets
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: DB_NAME
             - name: POSTGRES_USER
-              value: ticketuser
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: DB_USER
             - name: POSTGRES_PASSWORD
-              value: ticketpass
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: DB_PASSWORD
             - name: PGDATA
               value: /var/lib/postgresql/data/pgdata
           readinessProbe:
             exec:
-              command: ["pg_isready", "-U", "ticketuser", "-d", "tickets"]
+              command: ["sh", "-c", "pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\""]
             initialDelaySeconds: 5
             periodSeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 384Mi
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql/data
