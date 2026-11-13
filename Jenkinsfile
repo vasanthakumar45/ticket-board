@@ -30,7 +30,7 @@ pipeline {
             steps {
                 sh '''
                     docker build -t $API_IMAGE:$TAG ./api
-                    docker build -t $WEB_IMAGE:$TAG ./web
+                    docker build --pull --no-cache -t $WEB_IMAGE:$TAG ./web
                 '''
             }
         }
