@@ -68,7 +68,8 @@ pipeline {
                     sh '''
                         set -e
                         kubectl get secret db-credentials -n ticket-dev >/dev/null || { echo "Secret db-credentials is missing in ticket-dev (see Step 4.2)"; exit 1; }
-                        sed -i "s/newTag: .*/newTag: $TAG/" k8s/overlays/dev/kustomization.yaml
+                        sed -i "s/newTag: .*/newTag: '$TAG'/" k8s/overlays/dev/kustomization.yaml
+                        grep newTag k8s/overlays/dev/kustomization.yaml
                         kubectl apply -k k8s/overlays/dev
                         for d in db api web; do
                             kubectl rollout status deployment/$d -n ticket-dev --timeout=180s
@@ -100,7 +101,8 @@ pipeline {
                     sh '''
                         set -e
                         kubectl get secret db-credentials -n ticket-prod >/dev/null || { echo "Secret db-credentials is missing in ticket-prod (see Step 4.2)"; exit 1; }
-                        sed -i "s/newTag: .*/newTag: $TAG/" k8s/overlays/prod/kustomization.yaml
+                        sed -i "s/newTag: .*/newTag: '$TAG'/" k8s/overlays/prod/kustomization.yaml
+                        grep newTag k8s/overlays/prod/kustomization.yaml
                         kubectl apply -k k8s/overlays/prod
                         for d in db api web; do
                             if ! kubectl rollout status deployment/$d -n ticket-prod --timeout=180s; then

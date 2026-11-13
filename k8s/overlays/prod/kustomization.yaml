@@ -11,9 +11,9 @@ configMapGenerator:
       - DB_NAME=tickets
 images:
   - name: vasanth45/ticket-api
-    newTag: v1
+    newTag: "v1"
   - name: vasanth45/ticket-web
-    newTag: v1
+    newTag: "v1"
 replicas:
   - name: api
     count: 2
