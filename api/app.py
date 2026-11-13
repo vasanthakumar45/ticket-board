@@ -46,7 +46,7 @@ def health():
 
 @app.route("/api/version")
 def version():
-    return jsonify(env=APP_ENV, version="v1")
+    return jsonify(env=APP_ENV, version="v2")
 
 
 @app.route("/api/tickets", methods=["GET"])
