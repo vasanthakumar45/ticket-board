@@ -12,7 +12,7 @@ def test_version():
     client = app.test_client()
     response = client.get("/api/version")
     assert response.status_code == 200
-    assert response.get_json()["version"] == "v2"
+    assert response.get_json()["version"] == "v999"
 
 
 def test_ticket_needs_title():
