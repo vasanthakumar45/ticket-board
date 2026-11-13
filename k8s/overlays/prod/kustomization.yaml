@@ -27,3 +27,10 @@ patches:
       - op: replace
         path: /spec/rules/0/host
         value: ticket-prod.local
+  - target:
+      kind: HorizontalPodAutoscaler
+      name: api
+    patch: |-
+      - op: replace
+        path: /spec/minReplicas
+        value: 2        

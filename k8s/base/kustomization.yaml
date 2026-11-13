@@ -4,4 +4,5 @@ resources:
   - db.yaml
   - api.yaml
   - web.yaml
-  - ingress.yaml  
+  - ingress.yaml
+  - hpa.yaml  
